@@ -14,6 +14,7 @@
     --line: rgba(255,255,255,0.07); --line-strong: rgba(255,255,255,0.14);
     --text: #eceefb; --muted: #7d84a3; --accent: #8b7bff; --accent-2: #4fe0c4;
     --discord: #5865f2; --font-active: 'Outfit', sans-serif; --radius: 14px;
+    --gold: #ffd24a;
   }
   *{ box-sizing: border-box; }
   html,body{ margin:0; padding:0; height:100%; background: var(--bg); color: var(--text); font-family: var(--font-active); overflow:hidden; }
@@ -125,18 +126,28 @@
   .games-search:focus{ border-color: var(--accent); }
   .games-search::placeholder{ color: var(--muted); }
   .source-tabs{ display:flex; gap: 8px; flex-wrap:wrap; }
-  .source-tab{ padding: 10px 14px; border-radius: 11px; border: 1px solid var(--line-strong); background: rgba(21,24,39,0.75); color: var(--muted); font-size: 13.5px; cursor:pointer; white-space:nowrap; }
+  .source-tab{ padding: 10px 14px; border-radius: 11px; border: 1px solid var(--line-strong); background: rgba(21,24,39,0.75); color: var(--muted); font-size: 13.5px; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:7px; }
   .source-tab:hover{ color: var(--text); }
   .source-tab.active{ color: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .source-tab svg{ width:14px; height:14px; }
+  .toolbar-btn{ padding:10px 14px; border-radius:11px; border:1px solid var(--line-strong); background: rgba(21,24,39,0.75); color: var(--text); font-size:13.5px; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:7px; transition: border-color .15s ease, color .15s ease, transform .12s ease; }
+  .toolbar-btn:hover{ border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+  .toolbar-btn svg{ width:15px; height:15px; }
   .games-count{ color: var(--muted); font-size: 13px; white-space:nowrap; }
   .games-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; padding-bottom: 40px; }
-  .game-card{ border: 1px solid var(--line); border-radius: 12px; background: rgba(16,19,31,0.7); overflow:hidden; cursor:pointer; text-align:left; padding:0; color: var(--text); display:flex; flex-direction:column; transition: transform .16s ease, border-color .16s ease; }
+  .game-card{ position:relative; border: 1px solid var(--line); border-radius: 12px; background: rgba(16,19,31,0.7); overflow:hidden; cursor:pointer; text-align:left; padding:0; color: var(--text); display:flex; flex-direction:column; transition: transform .16s ease, border-color .16s ease; }
   .game-card:hover{ transform: translateY(-3px); border-color: var(--accent); }
   .game-thumb{ width:100%; aspect-ratio: 16/10; object-fit: cover; background: var(--panel-2); display:block; }
   .game-meta{ padding: 10px 11px 12px 11px; }
   .game-meta h3{ margin:0; font-size: 13.5px; font-weight: 600; line-height:1.3; }
   .game-meta span{ display:block; margin-top: 4px; font-size: 11.5px; color: var(--muted); }
   .games-status{ color: var(--muted); font-size: 14px; padding: 18px 2px 40px 2px; }
+  .star-btn{ position:absolute; top:8px; right:8px; width:30px; height:30px; border-radius:8px; border:1px solid var(--line-strong); background: rgba(10,13,22,0.78); color: var(--muted); display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; z-index:2; transition: color .15s ease, background .15s ease, transform .12s ease, border-color .15s ease; }
+  .star-btn:hover{ color: var(--gold); transform: scale(1.08); }
+  .star-btn svg{ width:16px; height:16px; display:block; }
+  .star-btn.fav{ color: var(--gold); background: rgba(255,210,74,0.16); border-color: rgba(255,210,74,0.55); }
+  .src-badge{ position:absolute; top:8px; left:8px; font-size:10px; font-weight:600; padding:3px 7px; border-radius:6px; background: rgba(10,13,22,0.78); border:1px solid var(--line-strong); color: var(--muted); z-index:2; }
+
   .game-player{ position: fixed; inset: 0; z-index: 60; background: #05060c; display:none; flex-direction: column; }
   .game-player.open{ display:flex; }
   .player-bar{ display:flex; align-items:center; gap: 10px; padding: 10px 14px; background: var(--panel); border-bottom: 1px solid var(--line); }
@@ -146,6 +157,22 @@
   .player-frame-wrap{ flex:1; position:relative; background:#000; }
   .player-frame-wrap iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
   .player-loading{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color: var(--muted); font-size: 14px; }
+
+  .sources-modal{ position:fixed; inset:0; z-index:70; background: rgba(5,6,12,0.7); backdrop-filter: blur(6px); display:none; align-items:center; justify-content:center; padding:30px; }
+  .sources-modal.open{ display:flex; }
+  .sources-modal-inner{ background: var(--panel); border:1px solid var(--line-strong); border-radius: var(--radius); max-width:580px; width:100%; max-height:82vh; overflow-y:auto; padding:24px; animation: home-rise .25s ease both; }
+  .sources-modal-inner h2{ margin:0 0 4px 0; font-size:20px; }
+  .sources-modal-inner .sub{ margin:0 0 18px 0; color: var(--muted); font-size:13.5px; }
+  .source-card{ display:flex; align-items:center; gap:14px; padding:14px; border:1px solid var(--line); border-radius:11px; margin-bottom:10px; background: var(--panel-2); }
+  .source-card .sc-ico{ width:42px; height:42px; border-radius:10px; background: rgba(139,123,255,0.15); display:flex; align-items:center; justify-content:center; color: var(--accent); flex-shrink:0; }
+  .source-card .sc-ico svg{ width:22px; height:22px; }
+  .source-card .sc-info{ flex:1; min-width:0; }
+  .source-card .sc-info h3{ margin:0 0 2px 0; font-size:15px; }
+  .source-card .sc-info p{ margin:0; font-size:12.5px; color: var(--muted); }
+  .source-card a.sc-link{ font-size:12.5px; color: var(--accent); text-decoration:none; white-space:nowrap; }
+  .source-card a.sc-link:hover{ text-decoration: underline; }
+  .modal-close{ margin-top:10px; width:100%; padding:11px; border-radius:10px; border:1px solid var(--line-strong); background: var(--panel-2); color: var(--text); cursor:pointer; font-size:14px; }
+  .modal-close:hover{ border-color: var(--accent); color: var(--accent); }
 
 </style>
 </head>
@@ -194,13 +221,27 @@
       </div>
     </div>
     <div class="view" id="view-games">
-      <div class="view-header"><h1>Games</h1><p>Games from GN Math and Noah's Tutoring Hub, all in one library.</p></div>
+      <div class="view-header"><h1>Games</h1><p>Games from GN Math, Noah's Tutoring Hub, Seraph and TGLSC — all in one library.</p></div>
       <div class="games-toolbar">
         <input id="gameSearch" class="games-search" type="search" placeholder="Search games..." autocomplete="off">
+        <button class="toolbar-btn" id="randomBtn" type="button" title="Open a random game">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/></svg>
+          Random
+        </button>
+        <button class="toolbar-btn" id="sourcesBtn" type="button" title="View all game sources">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/><circle cx="8" cy="7" r="1.4" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="10" cy="17" r="1.4" fill="currentColor" stroke="none"/></svg>
+          Sources
+        </button>
         <div class="source-tabs" id="sourceTabs">
           <button class="source-tab active" data-source="all" type="button">All</button>
+          <button class="source-tab" data-source="favorites" type="button">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l3 6.5 7 .9-5 4.8 1.4 7-6.4-3.6-6.4 3.6 1.4-7-5-4.8 7-.9z"/></svg>
+            Favorites
+          </button>
           <button class="source-tab" data-source="gnmath" type="button">GN Math</button>
-          <button class="source-tab" data-source="noah" type="button">Noah's Tutoring Hub</button>
+          <button class="source-tab" data-source="noah" type="button">Noah's Hub</button>
+          <button class="source-tab" data-source="seraph" type="button">Seraph</button>
+          <button class="source-tab" data-source="tglsc" type="button">TGLSC</button>
         </div>
         <span class="games-count" id="gameCount"></span>
       </div>
@@ -229,7 +270,7 @@
         </div>
         <div class="settings-section">
           <h2><span class="section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v10H3z"/><path d="M7 7v10M17 7v10"/></svg></span>Tab Cloak</h2>
-          <p class="desc">Make Nova look like something harmless in your tab bar.</p>
+          <p class="desc">Make Nova look like something harmless in your tab bar. Your choice is saved and reapplied on reload.</p>
           <div class="cloak-grid" id="cloakGrid"></div>
           <div class="cloak-input-wrap">
             <span class="chrome-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18"/><path d="M3 12h18"/></svg></span>
@@ -286,7 +327,17 @@
   </div>
 </div>
 
+<div class="sources-modal" id="sourcesModal">
+  <div class="sources-modal-inner">
+    <h2>Game Sources</h2>
+    <p class="sub">Every library Nova pulls games from. Click a source to visit it directly.</p>
+    <div id="sourcesList"></div>
+    <button class="modal-close" id="sourcesClose" type="button">Close</button>
+  </div>
+</div>
+
 <script>
+  /* ---------- View navigation ---------- */
   const navButtons = document.querySelectorAll('[data-view]');
   const views = document.querySelectorAll('.view');
   const navItemsInSidebar = document.querySelectorAll('.sidebar .nav-item');
@@ -294,10 +345,21 @@
   navButtons.forEach(btn => { btn.addEventListener('click', () => goToView(btn.getAttribute('data-view'))); });
   const sidebar = document.getElementById('sidebar');
   document.getElementById('collapseBtn').addEventListener('click', () => { sidebar.classList.toggle('collapsed'); });
- 
+
+  /* ---------- Persistence helpers ---------- */
+  const SETTINGS_KEY = "nova.settings.v2";
+  let settings = { font:null, theme:0, cloakIndex:7, cloakTitle:"", autoCloak:false, blobCloak:false, panicUrl:"", panicKeyEnabled:true, warnBeforeLeave:true };
+  function loadSettings(){ try{ const raw = localStorage.getItem(SETTINGS_KEY); if(raw) settings = Object.assign(settings, JSON.parse(raw)); }catch(e){} }
+  function saveSettings(){ try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }catch(e){} }
+  loadSettings();
+
+  /* ---------- Font ---------- */
   const fontChips = document.querySelectorAll('.font-chip');
-  fontChips.forEach(chip => { chip.addEventListener('click', () => { fontChips.forEach(c => c.classList.remove('selected')); chip.classList.add('selected'); document.documentElement.style.setProperty('--font-active', chip.getAttribute('data-font')); }); });
- 
+  function applyFont(val){ document.documentElement.style.setProperty('--font-active', val); }
+  fontChips.forEach(chip => { chip.addEventListener('click', () => { fontChips.forEach(c => c.classList.remove('selected')); chip.classList.add('selected'); settings.font = chip.getAttribute('data-font'); saveSettings(); }); });
+  if(settings.font){ applyFont(settings.font); fontChips.forEach(c => c.classList.toggle('selected', c.getAttribute('data-font') === settings.font)); }
+
+  /* ---------- Themes ---------- */
   function stars(seed, count, opacity){ let layers = []; let s = seed; function rand(){ s = (s * 9301 + 49297) % 233280; return s / 233280; } for(let i=0;i<count;i++){ const x = Math.floor(rand()*300); const y = Math.floor(rand()*300); const size = rand() > 0.85 ? 2 : 1; layers.push(`radial-gradient(${size}px ${size}px at ${x}px ${y}px, rgba(255,255,255,${opacity}), transparent 100%)`); } return layers.join(','); }
   const themes = [
     { name: 'Deep Space', scene: `radial-gradient(ellipse at 50% 0%, #1b2340 0%, #05060c 70%)`, texture: { css: stars(1,55,0.9), size: '260px 260px' } },
@@ -314,13 +376,11 @@
   const mainEl = document.getElementById('main');
   const textureEl = document.getElementById('textureLayer');
   function applyTheme(theme){ mainEl.style.backgroundImage = theme.scene; mainEl.style.backgroundSize = 'cover'; mainEl.style.backgroundPosition = theme.scenePosition || 'center'; mainEl.style.backgroundRepeat = 'no-repeat'; if(theme.texture){ textureEl.style.backgroundImage = theme.texture.css; textureEl.style.backgroundSize = theme.texture.size; textureEl.style.backgroundPosition = theme.texture.position || '0 0'; textureEl.style.backgroundRepeat = theme.texture.repeat || 'repeat'; } else { textureEl.style.backgroundImage = 'none'; } }
-  themes.forEach((theme, i) => { const el = document.createElement('div'); el.className = 'theme-swatch' + (i === 0 ? ' selected' : ''); el.style.backgroundImage = theme.scene; el.style.backgroundSize = 'cover'; el.style.backgroundPosition = theme.scenePosition || 'center'; el.style.backgroundRepeat = 'no-repeat'; el.innerHTML = '<span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="theme-name">' + theme.name + '</span>'; el.addEventListener('click', () => { document.querySelectorAll('.theme-swatch').forEach(s => s.classList.remove('selected')); el.classList.add('selected'); applyTheme(theme); }); themeGrid.appendChild(el); });
-  applyTheme(themes[0]);
- 
-  // ---------- Privacy & Cloaking ----------
-  // favicons pulled through Google's favicon service so every chip shows a real icon
+  themes.forEach((theme, i) => { const el = document.createElement('div'); el.className = 'theme-swatch' + (i === settings.theme ? ' selected' : ''); el.style.backgroundImage = theme.scene; el.style.backgroundSize = 'cover'; el.style.backgroundPosition = theme.scenePosition || 'center'; el.style.backgroundRepeat = 'no-repeat'; el.innerHTML = '<span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="theme-name">' + theme.name + '</span>'; el.addEventListener('click', () => { document.querySelectorAll('.theme-swatch').forEach(s => s.classList.remove('selected')); el.classList.add('selected'); settings.theme = i; saveSettings(); applyTheme(theme); }); themeGrid.appendChild(el); });
+  applyTheme(themes[settings.theme] || themes[0]);
+
+  /* ---------- Privacy & Cloaking ---------- */
   function favIcon(domain){ return 'https://www.google.com/s2/favicons?domain=' + domain + '&sz=64'; }
-  // Chrome "New Tab" tab icon (the little chrome globe/page)
   const CHROME_TAB_SVG = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="%23ffffff"/><circle cx="12" cy="12" r="7" fill="none" stroke="%234285f4" stroke-width="1.6"/><path d="M12 5a7 7 0 0 0 0 14" fill="none" stroke="%23ea4335" stroke-width="1.6"/><path d="M5 12h14" fill="none" stroke="%23fbbc04" stroke-width="1.6"/><path d="M12 5a7 7 0 0 1 6 5H6a7 7 0 0 1 6-5z" fill="none" stroke="%2334a853" stroke-width="1.6"/></svg>');
 
   const CLOAK_PRESETS = [
@@ -343,8 +403,8 @@
   const blobCloakToggle = document.getElementById('blobCloakToggle');
   const panicUrlInput = document.getElementById('panicUrlInput');
   const panicKeyToggle = document.getElementById('panicKeyToggle');
-  let activeCloakIndex = CLOAK_PRESETS.findIndex(p => p.name === 'New Tab'); // New Tab default
-  let autoCloak = false, blobCloak = false, panicKeyEnabled = true, panicUrl = '';
+  let activeCloakIndex = (typeof settings.cloakIndex === 'number') ? settings.cloakIndex : CLOAK_PRESETS.findIndex(p => p.name === 'New Tab');
+  let autoCloak = !!settings.autoCloak, blobCloak = !!settings.blobCloak, panicKeyEnabled = settings.panicKeyEnabled !== false, panicUrl = settings.panicUrl || '';
 
   function setFavicon(url){ let link = document.querySelector("link[rel~='icon']"); if(!link){ link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); } link.href = url || DEFAULT_FAVICON; }
   function applyCloak(preset){ document.title = preset.title; setFavicon(preset.favicon); cloakHint.textContent = 'Current cloak: ' + preset.name; }
@@ -363,33 +423,43 @@
       const label = document.createElement('span');
       label.textContent = preset.name;
       chip.appendChild(ico); chip.appendChild(label);
-      chip.addEventListener('click', () => { activeCloakIndex = i; autoCloak = false; autoCloakToggle.classList.remove('on'); cloakTitleInput.value = ''; applyCloak(preset); document.querySelectorAll('.cloak-chip').forEach(c => c.classList.remove('selected')); chip.classList.add('selected'); });
+      chip.addEventListener('click', () => { activeCloakIndex = i; autoCloak = false; autoCloakToggle.classList.remove('on'); cloakTitleInput.value = ''; settings.cloakIndex = i; settings.cloakTitle = ""; settings.autoCloak = false; saveSettings(); applyCloak(preset); document.querySelectorAll('.cloak-chip').forEach(c => c.classList.remove('selected')); chip.classList.add('selected'); });
       cloakGrid.appendChild(chip);
     });
   }
   renderCloakGrid();
-  applyCloak(CLOAK_PRESETS[activeCloakIndex]);
+  if(settings.cloakTitle){ cloakTitleInput.value = settings.cloakTitle; document.title = settings.cloakTitle; cloakHint.textContent = 'Current cloak: custom title'; }
+  else { applyCloak(CLOAK_PRESETS[activeCloakIndex] || CLOAK_PRESETS[7]); }
+  if(autoCloak){ autoCloakToggle.classList.add('on'); }
 
-  cloakTitleInput.addEventListener('input', () => { const v = cloakTitleInput.value.trim(); if(v){ document.title = v; cloakHint.textContent = 'Current cloak: custom title'; } else { applyCloak(CLOAK_PRESETS[activeCloakIndex]); } });
-  autoCloakToggle.addEventListener('click', () => { autoCloak = !autoCloak; autoCloakToggle.classList.toggle('on', autoCloak); if(!autoCloak){ applyCloak(CLOAK_PRESETS[activeCloakIndex]); if(cloakTitleInput.value.trim()) document.title = cloakTitleInput.value.trim(); } });
-  document.addEventListener('visibilitychange', () => { if(!autoCloak) return; if(document.hidden){ const disguise = CLOAK_PRESETS.find((p, i) => i !== activeCloakIndex) || CLOAK_PRESETS[0]; document.title = disguise.title; setFavicon(disguise.favicon); } else { applyCloak(CLOAK_PRESETS[activeCloakIndex]); if(cloakTitleInput.value.trim()) document.title = cloakTitleInput.value.trim(); } });
-  blobCloakToggle.addEventListener('click', () => { blobCloak = !blobCloak; blobCloakToggle.classList.toggle('on', blobCloak); });
-  panicUrlInput.addEventListener('input', () => { panicUrl = panicUrlInput.value.trim(); });
-  panicKeyToggle.addEventListener('click', () => { panicKeyEnabled = !panicKeyEnabled; panicKeyToggle.classList.toggle('on', panicKeyEnabled); });
+  cloakTitleInput.addEventListener('input', () => { const v = cloakTitleInput.value.trim(); settings.cloakTitle = v; saveSettings(); if(v){ document.title = v; cloakHint.textContent = 'Current cloak: custom title'; } else { applyCloak(CLOAK_PRESETS[activeCloakIndex]); } });
+  autoCloakToggle.addEventListener('click', () => { autoCloak = !autoCloak; autoCloakToggle.classList.toggle('on', autoCloak); settings.autoCloak = autoCloak; saveSettings(); if(!autoCloak){ if(settings.cloakTitle) document.title = settings.cloakTitle; else applyCloak(CLOAK_PRESETS[activeCloakIndex]); } });
+  document.addEventListener('visibilitychange', () => { if(!autoCloak) return; if(document.hidden){ const disguise = CLOAK_PRESETS.find((p, i) => i !== activeCloakIndex) || CLOAK_PRESETS[0]; document.title = disguise.title; setFavicon(disguise.favicon); } else { if(settings.cloakTitle) document.title = settings.cloakTitle; else applyCloak(CLOAK_PRESETS[activeCloakIndex]); } });
+  blobCloakToggle.addEventListener('click', () => { blobCloak = !blobCloak; blobCloakToggle.classList.toggle('on', blobCloak); settings.blobCloak = blobCloak; saveSettings(); });
+  if(blobCloak) blobCloakToggle.classList.add('on');
+  panicUrlInput.value = panicUrl;
+  panicUrlInput.addEventListener('input', () => { panicUrl = panicUrlInput.value.trim(); settings.panicUrl = panicUrl; saveSettings(); });
+  if(!panicKeyEnabled) panicKeyToggle.classList.remove('on');
+  panicKeyToggle.addEventListener('click', () => { panicKeyEnabled = !panicKeyEnabled; panicKeyToggle.classList.toggle('on', panicKeyEnabled); settings.panicKeyEnabled = panicKeyEnabled; saveSettings(); });
   function triggerPanic(){ const dest = panicUrl || 'https://classroom.google.com'; let url = dest; if(!/^https?:\/\//i.test(url)) url = 'https://' + url; try { window.location.replace(url); } catch(e){ window.location.href = url; } }
   document.addEventListener('keydown', (e) => { if(!panicKeyEnabled) return; if(e.key === '`' || e.code === 'Backquote'){ e.preventDefault(); triggerPanic(); } });
 
   const leaveToggle = document.getElementById('leaveWarningToggle');
-  let warnBeforeLeave = true;
-  leaveToggle.addEventListener('click', () => { warnBeforeLeave = !warnBeforeLeave; leaveToggle.classList.toggle('on', warnBeforeLeave); });
+  let warnBeforeLeave = settings.warnBeforeLeave !== false;
+  if(!warnBeforeLeave) leaveToggle.classList.remove('on');
+  leaveToggle.addEventListener('click', () => { warnBeforeLeave = !warnBeforeLeave; leaveToggle.classList.toggle('on', warnBeforeLeave); settings.warnBeforeLeave = warnBeforeLeave; saveSettings(); });
   window.addEventListener('beforeunload', (e) => { if (!warnBeforeLeave) return; e.preventDefault(); e.returnValue = ''; });
- 
+
+  /* ---------- Game library ---------- */
   const GNMATH_ZONES = "https://raw.githubusercontent.com/gn-math/assets/main/zones.json";
   const GNMATH_HTML = "https://raw.githubusercontent.com/gn-math/html/main";
   const GNMATH_COVERS = "https://raw.githubusercontent.com/gn-math/covers/main";
   const GNMATH_FILES_API = "https://api.github.com/repos/gn-math/html/contents";
   const NOAH_GAMES_JS = "https://raw.githubusercontent.com/NoahsAmazingTutoringHelp/Noahs-Calculus-Tutor/master/games.js";
-  const CACHE_KEY = "nova.gameLibrary.v1";
+  const SERAPH_API = "https://api.github.com/repos/a456pur/seraph/contents/games";
+  const SERAPH_BASE = "https://cdn.jsdelivr.net/gh/a456pur/seraph@main/games";
+  const TGLSC_API = "https://glseries.net/api/cdn";
+  const CACHE_KEY = "nova.gameLibrary.v2";
   const CACHE_TTL = 1000 * 60 * 60 * 6;
   let allGames = [], filteredGames = [], renderedCount = 0;
   const PAGE_SIZE = 60;
@@ -399,32 +469,182 @@
   const gameCountEl = document.getElementById('gameCount');
   const gameSearch = document.getElementById('gameSearch');
   const gamesView = document.getElementById('view-games');
+
+  const FAV_KEY = "nova.favorites.v1";
+  let favorites = new Set();
+  function loadFavs(){ try { const raw = localStorage.getItem(FAV_KEY); favorites = new Set(raw ? JSON.parse(raw) : []); } catch(e){ favorites = new Set(); } }
+  function saveFavs(){ try { localStorage.setItem(FAV_KEY, JSON.stringify([...favorites])); } catch(e){} }
+  function favKey(game){ return (game.source || "?") + "|" + (game.url || normTitle(game.title)); }
+  function isFav(game){ return favorites.has(favKey(game)); }
+  function toggleFav(game){ const k = favKey(game); if(favorites.has(k)) favorites.delete(k); else favorites.add(k); saveFavs(); }
+  loadFavs();
+
+  function normTitle(t){ return (t||"").toLowerCase().replace(/[^a-z0-9]/g,""); }
+  function isOvoBlocked(title){ const t = normTitle(title); return t === "ovo2" || t === "ovo3" || t === "ovoii" || t === "ovoiii" || t === "ovo2levelpack" || t === "ovo3levelpack" || t === "ovo2dlc" || t === "ovo3dlc"; }
+  function titleCaseFolder(folder){ return folder.replace(/[_-]+/g," ").replace(/([a-z0-9])([A-Z])/g,"$1 $2").replace(/\s+/g," ").trim().replace(/\b\w/g, c => c.toUpperCase()); }
+  function placeholderImage(title){
+    const letter = (title.trim()[0] || "?").toUpperCase();
+    const svg = "<svg xmlns='http://www.w3.org/2000/svg' width='320' height='200'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23151827'/><stop offset='1' stop-color='%2310131f'/></linearGradient></defs><rect width='100%' height='100%' fill='url(%23g)'/><text x='50%' y='50%' font-family='Outfit,sans-serif' font-size='72' font-weight='600' fill='%238b7bff' text-anchor='middle' dominant-baseline='central'>"+letter+"</text></svg>";
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  }
+
   function readCache(){ try{ const raw = localStorage.getItem(CACHE_KEY); if(!raw) return null; const parsed = JSON.parse(raw); if(!parsed.time || Date.now() - parsed.time > CACHE_TTL) return null; if(!Array.isArray(parsed.games) || !parsed.games.length) return null; return parsed.games; }catch(e){ return null; } }
   function writeCache(games){ try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ time: Date.now(), games })); }catch(e){} }
+
   async function loadGnMathFileMap(){ try{ const res = await fetch(GNMATH_FILES_API + "?t=" + Date.now()); if(!res.ok) throw new Error("file list " + res.status); const list = await res.json(); const map = {}; list.forEach(item => { if(item.type !== "file" || !item.name.endsWith(".html")) return; const base = item.name.replace(/\.html$/, ""); const id = base.split("-")[0]; if(/^\d+$/.test(id) && !(id in map)) map[id] = item.name; }); return map; }catch(e){ console.warn("GN Math file map failed", e); return {}; } }
   async function loadGnMath(){ const [zonesRes, fileMap] = await Promise.all([fetch(GNMATH_ZONES + "?t=" + Date.now()), loadGnMathFileMap()]); if(!zonesRes.ok) throw new Error("GN Math list " + zonesRes.status); const zones = await zonesRes.json(); return zones.filter(z => z && z.name && z.url && !z.name.startsWith("[!]")).map(z => { const isExternal = /^https?:/i.test(z.url); let url; if(isExternal){ url = z.url; } else { const idKey = String(z.id); const file = fileMap[idKey] || (idKey + ".html"); url = GNMATH_HTML + "/" + file; } return { title: z.name, source: "gnmath", sourceName: "GN Math", external: isExternal, url: url, image: (z.cover || "").replace("{COVER_URL}", GNMATH_COVERS).replace("{HTML_URL}", GNMATH_HTML), author: z.author || "" }; }); }
   async function loadNoah(){ const res = await fetch(NOAH_GAMES_JS + "?t=" + Date.now()); if(!res.ok) throw new Error("Noah's list " + res.status); const text = await res.text(); const list = new Function(text + "; return typeof games !== 'undefined' ? games : [];")(); return list.filter(g => g && g.title && g.url).map(g => ({ title: g.title, source: "noah", sourceName: "Noah's Tutoring Hub", external: false, url: g.url, image: g.image || "", author: "" })); }
+  async function loadSeraph(){ const res = await fetch(SERAPH_API + "?t=" + Date.now()); if(!res.ok) throw new Error("Seraph list " + res.status); const list = await res.json(); return list.filter(item => item && item.type === "dir").map(item => { const folder = item.name; return { title: titleCaseFolder(folder), source: "seraph", sourceName: "Seraph", external: false, url: SERAPH_BASE + "/" + folder + "/index.html", baseUrl: SERAPH_BASE + "/" + folder + "/", image: "", author: "" }; }); }
+  async function loadTglsc(){ const res = await fetch(TGLSC_API + "?t=" + Date.now()); if(!res.ok) throw new Error("TGLSC list " + res.status); const json = await res.json(); if(!json || !json.success || !Array.isArray(json.data)) throw new Error("TGLSC bad response"); return json.data.filter(g => g && g.title && g.embed_url && g.type !== "app").map(g => ({ title: g.title, source: "tglsc", sourceName: "TGLSC", external: false, url: g.embed_url, image: g.thumbnail || "", author: "", srcMode: true })); }
+
+  function dedupe(games){
+    const seen = new Set(); const out = [];
+    games.forEach(g => { const key = normTitle(g.title); if(!key) return; if(isOvoBlocked(g.title)) return; if(seen.has(key)) return; seen.add(key); out.push(g); });
+    return out;
+  }
+
   function setStatus(msg){ gamesStatus.textContent = msg || ""; gamesStatus.style.display = msg ? "block" : "none"; }
-  function applyFilters(){ const q = gameSearch.value.trim().toLowerCase(); filteredGames = allGames.filter(g => { if(activeSource !== "all" && g.source !== activeSource) return false; if(q && !g.title.toLowerCase().includes(q)) return false; return true; }); gamesGrid.innerHTML = ""; renderedCount = 0; renderMore(); gameCountEl.textContent = filteredGames.length + " game" + (filteredGames.length === 1 ? "" : "s"); if(!filteredGames.length){ setStatus("No games match your search."); } else { setStatus(""); } }
-  function renderMore(){ const next = filteredGames.slice(renderedCount, renderedCount + PAGE_SIZE); const frag = document.createDocumentFragment(); next.forEach(game => { const card = document.createElement('button'); card.type = "button"; card.className = "game-card"; const img = document.createElement('img'); img.className = "game-thumb"; img.loading = "lazy"; img.alt = game.title; img.src = game.image || "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10'%3E%3C/svg%3E"; img.addEventListener('error', () => { img.style.visibility = "hidden"; }); const meta = document.createElement('div'); meta.className = "game-meta"; const h3 = document.createElement('h3'); h3.textContent = game.title; const span = document.createElement('span'); span.textContent = game.sourceName; meta.appendChild(h3); meta.appendChild(span); card.appendChild(img); card.appendChild(meta); card.addEventListener('click', () => openGame(game)); frag.appendChild(card); }); gamesGrid.appendChild(frag); renderedCount += next.length; }
+  function applyFilters(){
+    const q = gameSearch.value.trim().toLowerCase();
+    if(activeSource === "favorites"){ filteredGames = allGames.filter(g => isFav(g)); }
+    else { filteredGames = allGames.filter(g => { if(activeSource !== "all" && g.source !== activeSource) return false; if(q && !g.title.toLowerCase().includes(q)) return false; return true; }); }
+    gamesGrid.innerHTML = ""; renderedCount = 0; renderMore();
+    gameCountEl.textContent = filteredGames.length + " game" + (filteredGames.length === 1 ? "" : "s");
+    if(!filteredGames.length){ setStatus(activeSource === "favorites" ? "No favorites yet. Tap the star on any game to save it here." : "No games match your search."); } else { setStatus(""); }
+  }
+  function renderMore(){
+    const next = filteredGames.slice(renderedCount, renderedCount + PAGE_SIZE);
+    const frag = document.createDocumentFragment();
+    next.forEach(game => {
+      const card = document.createElement('button'); card.type = "button"; card.className = "game-card";
+      const img = document.createElement('img'); img.className = "game-thumb"; img.loading = "lazy"; img.alt = game.title;
+      img.src = game.image || placeholderImage(game.title);
+      img.addEventListener('error', () => { img.src = placeholderImage(game.title); });
+      const meta = document.createElement('div'); meta.className = "game-meta";
+      const h3 = document.createElement('h3'); h3.textContent = game.title;
+      const span = document.createElement('span'); span.textContent = game.sourceName;
+      meta.appendChild(h3); meta.appendChild(span);
+
+      const star = document.createElement('button'); star.type = "button"; star.className = "star-btn" + (isFav(game) ? " fav" : ""); star.title = "Favorite";
+      star.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l3 6.5 7 .9-5 4.8 1.4 7-6.4-3.6-6.4 3.6 1.4-7-5-4.8 7-.9z"/></svg>';
+      star.addEventListener('click', (e) => { e.stopPropagation(); toggleFav(game); star.classList.toggle('fav', isFav(game)); if(activeSource === "favorites") applyFilters(); });
+
+      card.appendChild(img); card.appendChild(meta); card.appendChild(star);
+      card.addEventListener('click', () => openGame(game));
+      frag.appendChild(card);
+    });
+    gamesGrid.appendChild(frag); renderedCount += next.length;
+  }
   gamesView.addEventListener('scroll', () => { if(renderedCount >= filteredGames.length) return; if(gamesView.scrollTop + gamesView.clientHeight >= gamesView.scrollHeight - 400) renderMore(); });
   gameSearch.addEventListener('input', applyFilters);
   document.querySelectorAll('#sourceTabs .source-tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('#sourceTabs .source-tab').forEach(t => t.classList.remove('active')); tab.classList.add('active'); activeSource = tab.getAttribute('data-source'); applyFilters(); }); });
-  async function loadLibrary(){ const cached = readCache(); if(cached){ allGames = cached; applyFilters(); return; } setStatus("Loading games from GN Math and Noah's Tutoring Hub..."); const results = await Promise.allSettled([loadGnMath(), loadNoah()]); const games = []; const failed = []; const labels = ["GN Math", "Noah's Tutoring Hub"]; results.forEach((r, i) => { if(r.status === "fulfilled"){ games.push(...r.value); } else { failed.push(labels[i]); console.error(labels[i] + " failed", r.reason); } }); allGames = games; if(games.length) writeCache(games); applyFilters(); if(failed.length && games.length){ gameCountEl.textContent += " \u2022 " + failed.join(" & ") + " unavailable"; } else if(failed.length){ setStatus("Couldn't load games right now. Check your connection and refresh."); } }
 
+  async function loadLibrary(){
+    const cached = readCache();
+    if(cached){ allGames = cached; applyFilters(); return; }
+    setStatus("Loading games from GN Math, Noah's Hub, Seraph and TGLSC...");
+    const loaders = [loadGnMath, loadNoah, loadSeraph, loadTglsc];
+    const labels = ["GN Math", "Noah's Tutoring Hub", "Seraph", "TGLSC"];
+    const results = await Promise.allSettled(loaders.map(fn => fn()));
+    let games = []; const failed = [];
+    results.forEach((r, i) => { if(r.status === "fulfilled"){ games.push(...r.value); } else { failed.push(labels[i]); console.error(labels[i] + " failed", r.reason); } });
+    games = dedupe(games);
+    allGames = games;
+    if(games.length) writeCache(games);
+    applyFilters();
+    if(failed.length && games.length){ gameCountEl.textContent += " \u2022 " + failed.join(" & ") + " unavailable"; }
+    else if(failed.length){ setStatus("Couldn't load games right now. Check your connection and refresh."); }
+  }
+
+  /* ---------- Game player ---------- */
   const gamePlayer = document.getElementById('gamePlayer');
   const playerTitle = document.getElementById('playerTitle');
   const playerFrameWrap = document.getElementById('playerFrameWrap');
   const playerLoading = document.getElementById('playerLoading');
-  let playerFrame = null, currentGameHtml = "";
-  function openGame(game){ if(game.external){ window.open(game.url, "_blank"); return; } playerTitle.textContent = game.author ? game.title + " \u2014 by " + game.author : game.title; gamePlayer.classList.add('open'); playerLoading.style.display = "flex"; playerLoading.textContent = "Loading " + game.title + "..."; if(playerFrame){ playerFrame.remove(); playerFrame = null; } currentGameHtml = ""; fetch(game.url + (game.url.includes("?") ? "&" : "?") + "t=" + Date.now()).then(res => { if(!res.ok) throw new Error("HTTP " + res.status); return res.text(); }).then(html => { currentGameHtml = html; playerFrame = document.createElement('iframe'); playerFrame.allow = "autoplay; fullscreen; gamepad; clipboard-write; pointer-lock"; playerFrame.setAttribute('allowfullscreen', ''); playerFrameWrap.appendChild(playerFrame); const doc = playerFrame.contentDocument; doc.open(); doc.write(html); doc.close(); playerLoading.style.display = "none"; playerFrame.focus(); }).catch(err => { playerLoading.style.display = "flex"; playerLoading.textContent = "Couldn't load this game (" + err.message + "). Try another one."; }); }
-  function closeGame(){ gamePlayer.classList.remove('open'); if(playerFrame){ playerFrame.remove(); playerFrame = null; } currentGameHtml = ""; }
+  let playerFrame = null, currentGameHtml = "", currentGameSrc = "";
+  function injectBase(html, baseUrl){ if(/<base\s/i.test(html)) return html; const baseTag = '<base href="' + baseUrl + '">'; if(/<head[^>]*>/i.test(html)) return html.replace(/<head[^>]*>/i, m => m + baseTag); return baseTag + html; }
+  function markBroken(game){
+    const before = allGames.length;
+    allGames = allGames.filter(g => !(g.url === game.url && g.source === game.source));
+    if(allGames.length !== before){ writeCache(allGames); applyFilters(); }
+  }
+  function openGame(game){
+    if(game.external){ window.open(game.url, "_blank"); return; }
+    playerTitle.textContent = game.author ? game.title + " \u2014 by " + game.author : game.title;
+    gamePlayer.classList.add('open'); playerLoading.style.display = "flex"; playerLoading.textContent = "Loading " + game.title + "...";
+    if(playerFrame){ playerFrame.remove(); playerFrame = null; }
+    currentGameHtml = ""; currentGameSrc = "";
+
+    if(game.srcMode){
+      currentGameSrc = game.url;
+      playerFrame = document.createElement('iframe');
+      playerFrame.allow = "autoplay; fullscreen; gamepad; clipboard-write; pointer-lock";
+      playerFrame.setAttribute('allowfullscreen', '');
+      playerFrame.src = game.url;
+      playerFrame.addEventListener('load', () => { playerLoading.style.display = "none"; });
+      playerFrameWrap.appendChild(playerFrame);
+      return;
+    }
+
+    fetch(game.url + (game.url.includes("?") ? "&" : "?") + "t=" + Date.now()).then(res => { if(!res.ok) throw new Error("HTTP " + res.status); return res.text(); }).then(html => {
+      currentGameHtml = game.baseUrl ? injectBase(html, game.baseUrl) : html;
+      playerFrame = document.createElement('iframe');
+      playerFrame.allow = "autoplay; fullscreen; gamepad; clipboard-write; pointer-lock";
+      playerFrame.setAttribute('allowfullscreen', '');
+      playerFrameWrap.appendChild(playerFrame);
+      const doc = playerFrame.contentDocument;
+      doc.open(); doc.write(currentGameHtml); doc.close();
+      playerLoading.style.display = "none"; playerFrame.focus();
+    }).catch(err => {
+      markBroken(game);
+      playerLoading.style.display = "flex";
+      playerLoading.textContent = "Couldn't load this game (" + err.message + "). It has been removed from your library — try another one.";
+    });
+  }
+  function closeGame(){ gamePlayer.classList.remove('open'); if(playerFrame){ playerFrame.remove(); playerFrame = null; } currentGameHtml = ""; currentGameSrc = ""; }
   document.getElementById('playerClose').addEventListener('click', closeGame);
   document.getElementById('playerFullscreen').addEventListener('click', () => { const target = playerFrame || playerFrameWrap; if(target.requestFullscreen) target.requestFullscreen(); else if(target.webkitRequestFullscreen) target.webkitRequestFullscreen(); });
-  document.getElementById('playerBlank').addEventListener('click', () => { if(!currentGameHtml) return; const win = window.open("about:blank", "_blank"); if(!win) return; if(blobCloak){ const blob = new Blob([currentGameHtml], { type: 'text/html' }); const blobUrl = URL.createObjectURL(blob); const iframe = win.document.createElement('iframe'); iframe.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;border:0;'; iframe.src = blobUrl; win.document.body.style.margin = '0'; win.document.body.appendChild(iframe); } else { win.document.open(); win.document.write(currentGameHtml); win.document.close(); } });
+  document.getElementById('playerBlank').addEventListener('click', () => {
+    if(currentGameHtml){
+      const win = window.open("about:blank", "_blank"); if(!win) return;
+      if(blobCloak){ const blob = new Blob([currentGameHtml], { type: 'text/html' }); const blobUrl = URL.createObjectURL(blob); const iframe = win.document.createElement('iframe'); iframe.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;border:0;'; iframe.src = blobUrl; win.document.body.style.margin = '0'; win.document.body.appendChild(iframe); }
+      else { win.document.open(); win.document.write(currentGameHtml); win.document.close(); }
+    } else if(currentGameSrc){
+      const win = window.open("about:blank", "_blank"); if(!win) return;
+      const iframe = win.document.createElement('iframe'); iframe.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;border:0;'; iframe.src = currentGameSrc; win.document.body.style.margin = '0'; win.document.body.appendChild(iframe);
+    }
+  });
   document.addEventListener('keydown', (e) => { if(e.key === "Escape" && gamePlayer.classList.contains('open')) closeGame(); });
+
+  /* ---------- Random game ---------- */
+  document.getElementById('randomBtn').addEventListener('click', () => {
+    const pool = filteredGames.length ? filteredGames : allGames;
+    if(!pool.length){ return; }
+    const g = pool[Math.floor(Math.random() * pool.length)];
+    openGame(g);
+  });
+
+  /* ---------- Sources modal ---------- */
+  const GAME_SOURCES = [
+    { name: "GN Math", desc: "GN Math's hosted game library.", url: "https://github.com/gn-math", icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 9h10M7 13h6M7 17h8"/></svg>' },
+    { name: "Noah's Tutoring Hub", desc: "Noah's unblocked games collection.", url: "https://github.com/NoahsAmazingTutoringHelp", icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V6a2 2 0 0 1 2-2h9l5 5v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 4v5h5"/></svg>' },
+    { name: "Seraph", desc: "Open-source site hosting 500+ games.", url: "https://github.com/a456pur/seraph", icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>' },
+    { name: "TGLSC", desc: "TGLSC's CDN game library.", url: "https://github.com/Endlessguyin/TGLSC-CDN", icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 4.5-3 7.5-8 9-5-1.5-8-4.5-8-9V7z"/></svg>' }
+  ];
+  const sourcesModal = document.getElementById('sourcesModal');
+  const sourcesList = document.getElementById('sourcesList');
+  GAME_SOURCES.forEach(s => {
+    const card = document.createElement('div'); card.className = 'source-card';
+    card.innerHTML = '<span class="sc-ico">' + s.icon + '</span><div class="sc-info"><h3>' + s.name + '</h3><p>' + s.desc + '</p></div><a class="sc-link" href="' + s.url + '" target="_blank" rel="noopener noreferrer">Visit &rarr;</a>';
+    sourcesList.appendChild(card);
+  });
+  document.getElementById('sourcesBtn').addEventListener('click', () => sourcesModal.classList.add('open'));
+  document.getElementById('sourcesClose').addEventListener('click', () => sourcesModal.classList.remove('open'));
+  sourcesModal.addEventListener('click', (e) => { if(e.target === sourcesModal) sourcesModal.classList.remove('open'); });
+
   loadLibrary();
 
+  /* ---------- Starfield ---------- */
   const canvas = document.getElementById('starfield');
   const ctx = canvas.getContext('2d');
   let starParticles = [];
