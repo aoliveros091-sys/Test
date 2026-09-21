@@ -65,7 +65,7 @@
   .discord-pill svg{ width: 16px; height: 16px; color: var(--muted); transition: color .15s ease; }
   .discord-pill:hover svg{ color: #fff; }
 
-  #view-games, #view-favorites{ justify-content:flex-start; }
+  #view-games{ justify-content:flex-start; }
   .view-header{ margin-bottom: 40px; }
   .view-header h1{ margin:0 0 6px 0; font-size: 30px; font-weight: 600; }
   .view-header p{ margin:0; color: var(--muted); font-size: 14.5px; }
@@ -192,10 +192,6 @@
         <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="7.5" width="19" height="10" rx="4"/><path d="M7 10.5v4"/><path d="M5 12.5h4"/><circle cx="16" cy="10.8" r="0.9" fill="currentColor" stroke="none"/><circle cx="18.2" cy="13" r="0.9" fill="currentColor" stroke="none"/></svg></span>
         <span class="nav-label">Games</span>
       </button>
-      <button class="nav-item" data-view="favorites" type="button">
-        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 17.8 6.8 19.2l1-5.8L3.5 9.2l5.9-.9z"/></svg></span>
-        <span class="nav-label">Favorites</span>
-      </button>
       <a class="nav-item" href="https://sites.google.com/mymail.lausd.net/novaontop/home" target="_blank" rel="noopener noreferrer">
         <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.33-1.33"/></svg></span>
         <span class="nav-label">Links</span>
@@ -242,12 +238,6 @@
       </div>
       <div class="games-grid" id="gamesGrid"></div>
       <div class="games-status" id="gamesStatus">Loading games...</div>
-    </div>
-
-    <div class="view" id="view-favorites">
-      <div class="view-header"><h1>Favorites</h1><p>Games you've starred. Click the star on any game card to add or remove it here.</p></div>
-      <div class="games-grid" id="favoritesGrid"></div>
-      <div class="games-status" id="favoritesStatus">No favorites yet — click the star on a game to add it here.</div>
     </div>
 
     <div class="view" id="view-settings">
@@ -373,7 +363,7 @@
   const navButtons = document.querySelectorAll('[data-view]');
   const views = document.querySelectorAll('.view');
   const navItemsInSidebar = document.querySelectorAll('.sidebar .nav-item');
-  function goToView(name){ views.forEach(v => v.classList.toggle('active', v.id === 'view-' + name)); navItemsInSidebar.forEach(i => i.classList.toggle('active', i.getAttribute('data-view') === name)); if(name === 'favorites') renderFavorites(); }
+  function goToView(name){ views.forEach(v => v.classList.toggle('active', v.id === 'view-' + name)); navItemsInSidebar.forEach(i => i.classList.toggle('active', i.getAttribute('data-view') === name)); }
   navButtons.forEach(btn => { btn.addEventListener('click', () => goToView(btn.getAttribute('data-view'))); });
   const sidebar = document.getElementById('sidebar');
   document.getElementById('collapseBtn').addEventListener('click', () => { sidebar.classList.toggle('collapsed'); });
@@ -674,15 +664,13 @@
   const gameCountEl = document.getElementById('gameCount');
   const gameSearch = document.getElementById('gameSearch');
   const gamesView = document.getElementById('view-games');
-  const favoritesGrid = document.getElementById('favoritesGrid');
-  const favoritesStatus = document.getElementById('favoritesStatus');
 
   /* ---------------- Game Sources dropdown (vertical pill menu) ---------------- */
   const sourcesDropdown = document.getElementById('sourcesDropdown');
   const sourcesBtn = document.getElementById('sourcesBtn');
   function renderSourceDropdown(){
     sourcesDropdown.innerHTML = '';
-    const items = [{ id: 'all', name: 'All' }, { id: 'owner', name: "Owner's Favorites" }].concat(SOURCES.map(s => ({ id: s.id, name: s.name })));
+    const items = [{ id: 'all', name: 'All' }, { id: 'favorites', name: 'My Favorites' }, { id: 'owner', name: "Owner's Favorites" }].concat(SOURCES.map(s => ({ id: s.id, name: s.name })));
     items.forEach(t => {
       const b = document.createElement('button');
       b.type = 'button';
@@ -808,7 +796,7 @@
       star.classList.toggle('active', nowFav);
       star.title = nowFav ? "Remove from favorites" : "Add to favorites";
       star.setAttribute('aria-label', star.title);
-      renderFavorites();
+      if(activeSource === 'favorites') applyFilters();
     });
     card.appendChild(star);
 
@@ -838,6 +826,7 @@
     const q = gameSearch.value.trim().toLowerCase();
     filteredGames = allGames.filter(g => {
       if(activeSource === 'owner'){ if(!isOwnerFavorite(g)) return false; }
+      else if(activeSource === 'favorites'){ if(!isFavorited(g)) return false; }
       else if(activeSource !== 'all' && g.source !== activeSource) return false;
       if(q && !g.title.toLowerCase().includes(q)) return false;
       return true;
@@ -852,15 +841,6 @@
     next.forEach(game => frag.appendChild(createGameCard(game)));
     gamesGrid.appendChild(frag);
     renderedCount += next.length;
-  }
-  function renderFavorites(){
-    if(!favoritesGrid) return;
-    const favs = getFavorites();
-    const games = allGames.filter(g => favs.indexOf(favKey(g)) !== -1);
-    favoritesGrid.innerHTML = "";
-    games.forEach(g => favoritesGrid.appendChild(createGameCard(g)));
-    favoritesStatus.style.display = games.length ? "none" : "block";
-    favoritesStatus.textContent = "No favorites yet — click the star on a game to add it here.";
   }
   gamesView.addEventListener('scroll', () => { if(renderedCount >= filteredGames.length) return; if(gamesView.scrollTop + gamesView.clientHeight >= gamesView.scrollHeight - 400) renderMore(); });
   gameSearch.addEventListener('input', applyFilters);
@@ -934,7 +914,7 @@
     if(playerFrame){ playerFrame.remove(); playerFrame = null; }
     currentGameHtml = ""; currentGame = null;
     // refresh the grid so the saved pill / timestamp updates on the card
-    if(allGames.length){ gamesGrid.innerHTML = ""; renderedCount = 0; renderMore(); renderFavorites(); }
+    if(allGames.length){ gamesGrid.innerHTML = ""; renderedCount = 0; renderMore(); }
   }
   document.getElementById('playerClose').addEventListener('click', closeGame);
   document.getElementById('playerFullscreen').addEventListener('click', () => { const target = playerFrame || playerFrameWrap; if(target.requestFullscreen) target.requestFullscreen(); else if(target.webkitRequestFullscreen) target.webkitRequestFullscreen(); });
@@ -956,7 +936,7 @@
     for(let i = 0; i < localStorage.length; i++){ const k = localStorage.key(i); if(k && k.startsWith(PROGRESS_PREFIX)) toRemove.push(k); }
     toRemove.forEach(k => { try{ localStorage.removeItem(k); }catch(e){} });
     getGameKeys().forEach(k => { try{ localStorage.removeItem(k); }catch(e){} });
-    if(allGames.length){ gamesGrid.innerHTML = ""; renderedCount = 0; renderMore(); renderFavorites(); }
+    if(allGames.length){ gamesGrid.innerHTML = ""; renderedCount = 0; renderMore(); }
   });
 
   loadLibrary(false);
