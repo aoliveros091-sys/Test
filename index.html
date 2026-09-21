@@ -14,6 +14,7 @@
     --line: rgba(255,255,255,0.07); --line-strong: rgba(255,255,255,0.14);
     --text: #eceefb; --muted: #7d84a3; --accent: #8b7bff; --accent-2: #4fe0c4;
     --discord: #5865f2; --font-active: 'Outfit', sans-serif; --radius: 14px;
+    --gold: #ffcc44;
   }
   *{ box-sizing: border-box; }
   html,body{ margin:0; padding:0; height:100%; background: var(--bg); color: var(--text); font-family: var(--font-active); overflow:hidden; }
@@ -45,10 +46,10 @@
   .sidebar.collapsed .collapse-btn .nav-label{ display:none; }
 
   .main{ flex:1; position:relative; background-size: cover; background-position: center; display:flex; flex-direction:column; overflow:hidden; }
-  /* Ambient overlay: darker at top/bottom for legibility, transparent in the middle so the wallpaper shows through */
-  .main::before{ content:""; position:absolute; inset:0; background: linear-gradient(180deg, rgba(6,8,14,0.40) 0%, rgba(6,8,14,0.10) 16%, rgba(6,8,14,0.10) 84%, rgba(6,8,14,0.40) 100%); pointer-events:none; z-index:1; }
-  /* Custom wallpapers get an even lighter scrim so they read at near full brightness */
-  .main.custom-bg::before{ background: linear-gradient(180deg, rgba(6,8,14,0.26) 0%, rgba(6,8,14,0.04) 16%, rgba(6,8,14,0.04) 84%, rgba(6,8,14,0.26) 100%); }
+  /* Ambient overlay: very light scrim only at the very top/bottom for legibility — keeps the wallpaper bright */
+  .main::before{ content:""; position:absolute; inset:0; background: linear-gradient(180deg, rgba(6,8,14,0.18) 0%, rgba(6,8,14,0.00) 16%, rgba(6,8,14,0.00) 84%, rgba(6,8,14,0.18) 100%); pointer-events:none; z-index:1; }
+  /* Custom wallpapers get almost no scrim so they show at full brightness */
+  .main.custom-bg::before{ background: linear-gradient(180deg, rgba(6,8,14,0.00) 0%, rgba(6,8,14,0.00) 100%); }
   .texture-layer{ position:absolute; inset:0; pointer-events:none; z-index:0; }
   .view{ position:relative; z-index:2; flex:1; display:none; overflow-y:auto; padding: 60px; }
   .view.active{ display:flex; flex-direction:column; }
@@ -64,7 +65,7 @@
   .discord-pill svg{ width: 16px; height: 16px; color: var(--muted); transition: color .15s ease; }
   .discord-pill:hover svg{ color: #fff; }
 
-  #view-games{ justify-content:flex-start; }
+  #view-games, #view-favorites{ justify-content:flex-start; }
   .view-header{ margin-bottom: 40px; }
   .view-header h1{ margin:0 0 6px 0; font-size: 30px; font-weight: 600; }
   .view-header p{ margin:0; color: var(--muted); font-size: 14.5px; }
@@ -143,7 +144,7 @@
   .source-item.active{ background:#2c263d; color:#b9a8ff; }
 
   .games-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; padding-bottom: 40px; }
-  .game-card{ border: 1px solid var(--line); border-radius: 12px; background: rgba(16,19,31,0.7); overflow:hidden; cursor:pointer; text-align:left; padding:0; color: var(--text); display:flex; flex-direction:column; transition: transform .16s ease, border-color .16s ease; }
+  .game-card{ position:relative; border: 1px solid var(--line); border-radius: 12px; background: rgba(16,19,31,0.7); overflow:hidden; cursor:pointer; text-align:left; padding:0; color: var(--text); display:flex; flex-direction:column; transition: transform .16s ease, border-color .16s ease; }
   .game-card:hover{ transform: translateY(-3px); border-color: var(--accent); }
   .game-thumb{ width:100%; aspect-ratio: 16/10; object-fit: cover; background: var(--panel-2); display:block; }
   .game-meta{ padding: 10px 11px 12px 11px; }
@@ -151,6 +152,17 @@
   .game-meta span{ display:block; margin-top: 4px; font-size: 11.5px; color: var(--muted); }
   .game-progress{ display:inline-flex; align-items:center; gap:5px; margin-top:7px; font-size:10.5px; color: var(--accent-2); font-weight:500; }
   .game-progress .dot{ width:6px; height:6px; border-radius:50%; background: var(--accent-2); box-shadow: 0 0 6px var(--accent-2); }
+
+  /* Favorite star — top right of each game card */
+  .fav-star{ position:absolute; top:8px; right:8px; width:32px; height:32px; min-width:32px; border-radius:9px; background: rgba(0,0,0,0.45); border:1px solid rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:3; padding:0; transition: background .15s ease, transform .12s ease, border-color .15s ease; }
+  .fav-star:hover{ background: rgba(0,0,0,0.7); transform: scale(1.1); border-color: var(--gold); }
+  .fav-star svg{ width:17px; height:17px; fill: transparent; stroke: currentColor; stroke-width:1.6; color: rgba(255,255,255,0.82); transition: color .15s ease, fill .15s ease; }
+  .fav-star:hover svg{ color: var(--gold); }
+  .fav-star.active{ background: rgba(0,0,0,0.6); border-color: var(--gold); }
+  .fav-star.active svg{ fill: var(--gold); color: var(--gold); }
+  .owner-badge{ position:absolute; top:8px; left:8px; z-index:3; padding: 3px 8px; border-radius:999px; background: rgba(139,123,255,0.85); color:#fff; font-size:9.5px; font-weight:700; letter-spacing:0.3px; text-transform:uppercase; display:none; }
+  .game-card.owner-pick .owner-badge{ display:block; }
+
   .games-status{ color: var(--muted); font-size: 14px; padding: 18px 2px 40px 2px; }
   .game-player{ position: fixed; inset: 0; z-index: 60; background: #05060c; display:none; flex-direction: column; }
   .game-player.open{ display:flex; }
@@ -163,14 +175,6 @@
   .player-frame-wrap{ flex:1; position:relative; background:#000; }
   .player-frame-wrap iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
   .player-loading{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color: var(--muted); font-size: 14px; text-align:center; padding: 0 24px; }
-
-  /* Proxy */
-  #view-proxy{ padding: 34px 44px 44px; }
-  .proxy-bar{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px; }
-  .proxy-bar .games-search{ flex:1; min-width:220px; }
-  .proxy-frame-wrap{ flex:1; position:relative; min-height:380px; background:#05060c; border:1px solid var(--line-strong); border-radius:12px; overflow:hidden; }
-  .proxy-frame-wrap iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; background:#fff; }
-  @media (max-width: 720px){ #view-proxy{ padding: 34px 22px; } }
 
 </style>
 </head>
@@ -188,9 +192,9 @@
         <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="7.5" width="19" height="10" rx="4"/><path d="M7 10.5v4"/><path d="M5 12.5h4"/><circle cx="16" cy="10.8" r="0.9" fill="currentColor" stroke="none"/><circle cx="18.2" cy="13" r="0.9" fill="currentColor" stroke="none"/></svg></span>
         <span class="nav-label">Games</span>
       </button>
-      <button class="nav-item" data-view="proxy" type="button">
-        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a9 9 0 0 0 0 18"/><path d="M12 3c2.5 2.6 4 5.7 4 9s-1.5 6.4-4 9c-2.5-2.6-4-5.7-4-9s1.5-6.4 4-9z"/></svg></span>
-        <span class="nav-label">Proxy</span>
+      <button class="nav-item" data-view="favorites" type="button">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 17.8 6.8 19.2l1-5.8L3.5 9.2l5.9-.9z"/></svg></span>
+        <span class="nav-label">Favorites</span>
       </button>
       <a class="nav-item" href="https://sites.google.com/mymail.lausd.net/novaontop/home" target="_blank" rel="noopener noreferrer">
         <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.33-1.33"/></svg></span>
@@ -240,18 +244,10 @@
       <div class="games-status" id="gamesStatus">Loading games...</div>
     </div>
 
-    <div class="view" id="view-proxy">
-      <div class="view-header"><h1>Proxy</h1><p>Browse any site through the proxy. It runs on open-source proxies (cors.eu.org first, all readable code) and tries them in order until one works. Sites that need a login may not work.</p></div>
-      <div class="proxy-bar">
-        <input id="proxyUrlInput" class="games-search" type="text" placeholder="Type a URL or search the web..." autocomplete="off" spellcheck="false">
-        <button class="action-btn" id="proxyGo" type="button">Go</button>
-        <button class="action-btn" id="proxyBack" type="button">Back</button>
-        <button class="action-btn" id="proxyNewTab" type="button">Open in new tab</button>
-      </div>
-      <div class="proxy-frame-wrap" id="proxyFrameWrap">
-        <div class="player-loading" id="proxyLoading" style="display:none;">Loading...</div>
-        <iframe id="proxyFrame" title="Proxy" referrerpolicy="no-referrer"></iframe>
-      </div>
+    <div class="view" id="view-favorites">
+      <div class="view-header"><h1>Favorites</h1><p>Games you've starred. Click the star on any game card to add or remove it here.</p></div>
+      <div class="games-grid" id="favoritesGrid"></div>
+      <div class="games-status" id="favoritesStatus">No favorites yet — click the star on a game to add it here.</div>
     </div>
 
     <div class="view" id="view-settings">
@@ -367,7 +363,9 @@
     "book mark this site https://sites.google.com/mymail.lausd.net/novaontop/home so you will never run out of links",
     "Proxy coming Soon",
     "hhhhhh I come home so late and I barely have to focus on Nova",
-    "The F students are inventors"
+    "God Loves you",
+    "Quick Tip if your game doesn't load try opening it in about:blank",
+    "Proverbs 16:24",
   ];
   try { document.getElementById('homeTagline').textContent = TAGLINES[Math.floor(Math.random() * TAGLINES.length)]; } catch(e){}
 
@@ -375,7 +373,7 @@
   const navButtons = document.querySelectorAll('[data-view]');
   const views = document.querySelectorAll('.view');
   const navItemsInSidebar = document.querySelectorAll('.sidebar .nav-item');
-  function goToView(name){ views.forEach(v => v.classList.toggle('active', v.id === 'view-' + name)); navItemsInSidebar.forEach(i => i.classList.toggle('active', i.getAttribute('data-view') === name)); }
+  function goToView(name){ views.forEach(v => v.classList.toggle('active', v.id === 'view-' + name)); navItemsInSidebar.forEach(i => i.classList.toggle('active', i.getAttribute('data-view') === name)); if(name === 'favorites') renderFavorites(); }
   navButtons.forEach(btn => { btn.addEventListener('click', () => goToView(btn.getAttribute('data-view'))); });
   const sidebar = document.getElementById('sidebar');
   document.getElementById('collapseBtn').addEventListener('click', () => { sidebar.classList.toggle('collapsed'); });
@@ -676,13 +674,15 @@
   const gameCountEl = document.getElementById('gameCount');
   const gameSearch = document.getElementById('gameSearch');
   const gamesView = document.getElementById('view-games');
+  const favoritesGrid = document.getElementById('favoritesGrid');
+  const favoritesStatus = document.getElementById('favoritesStatus');
 
   /* ---------------- Game Sources dropdown (vertical pill menu) ---------------- */
   const sourcesDropdown = document.getElementById('sourcesDropdown');
   const sourcesBtn = document.getElementById('sourcesBtn');
   function renderSourceDropdown(){
     sourcesDropdown.innerHTML = '';
-    const items = [{ id: 'all', name: 'All' }].concat(SOURCES.map(s => ({ id: s.id, name: s.name })));
+    const items = [{ id: 'all', name: 'All' }, { id: 'owner', name: "Owner's Favorites" }].concat(SOURCES.map(s => ({ id: s.id, name: s.name })));
     items.forEach(t => {
       const b = document.createElement('button');
       b.type = 'button';
@@ -700,6 +700,7 @@
   renderSourceDropdown();
 
   function normalizeTitle(t){ return t.toLowerCase().replace(/[^a-z0-9]+/g, ' ').replace(/\b(unblocked|game|html5?)\b/g, '').trim(); }
+  function compactTitle(t){ return (t || '').toLowerCase().replace(/[^a-z0-9]+/g, ''); }
   function cleanLibrary(games){
     const seen = new Map();
     games.forEach(g => {
@@ -717,8 +718,29 @@
     return Array.from(seen.values()).sort((a, b) => a.title.localeCompare(b.title));
   }
 
+  /* ---------------- owner's favorites ---------------- */
+  const OWNER_FAV_EXACT = [
+    "geometrydash", "deathrun3d", "slope", "ovo", "subwaysurfers",
+    "fivenightsatepsteins", "fivenightsatfreddys", "fivenightsatwingstons",
+    "fivenightsatfreddys2", "fivenightsatfreddys3", "basketbros"
+  ];
+  function isOwnerFavorite(game){
+    const c = compactTitle(game.title);
+    if(!c) return false;
+    // all Friday Night Funkin games (and FNF mods)
+    if(c.indexOf('fridaynightfunkin') !== -1 || c.indexOf('fnf') === 0) return true;
+    return OWNER_FAV_EXACT.indexOf(c) !== -1;
+  }
+
+  /* ---------------- user favorites ---------------- */
+  const FAVORITES_KEY = "nova.favorites.v1";
+  function getFavorites(){ try { return JSON.parse(localStorage.getItem(FAVORITES_KEY) || "[]"); } catch(e){ return []; } }
+  function favKey(game){ return game.source + ":" + normalizeTitle(game.title); }
+  function isFavorited(game){ return getFavorites().indexOf(favKey(game)) !== -1; }
+  function toggleFavorite(game){ const f = getFavorites(); const k = favKey(game); const i = f.indexOf(k); if(i === -1) f.push(k); else f.splice(i,1); try { localStorage.setItem(FAVORITES_KEY, JSON.stringify(f)); } catch(e){} }
+
   function readCache(){ try{ const raw = localStorage.getItem(CACHE_KEY); if(!raw) return null; const parsed = JSON.parse(raw); if(!parsed.time || Date.now() - parsed.time > CACHE_TTL) return null; if(!Array.isArray(parsed.games) || !parsed.games.length) return null; return parsed.games; }catch(e){ return null; } }
-  function writeCache(games){ try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ time: Date.now(), games })); }catch(e){} }
+  function writeCache(games){ try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ time: Date.now(), games: games })); }catch(e){} }
   function setStatus(msg){ gamesStatus.textContent = msg || ""; gamesStatus.style.display = msg ? "block" : "none"; }
 
   /* ---------------- per-game progress saving ---------------- */
@@ -727,7 +749,7 @@
   // into localStorage, and while/after playing we capture them back under a per-game key.
   const PROGRESS_PREFIX = "nova.progress.";
   function progressKeyFor(game){ return PROGRESS_PREFIX + game.source + ":" + normalizeTitle(game.title); }
-  function isNovaKey(k){ return k === SETTINGS_KEY || k === CACHE_KEY || k.startsWith(PROGRESS_PREFIX) || k.startsWith("nova."); }
+  function isNovaKey(k){ return k === SETTINGS_KEY || k === CACHE_KEY || k === FAVORITES_KEY || k.startsWith(PROGRESS_PREFIX) || k.startsWith("nova."); }
   function getGameKeys(){ const out = []; for(let i = 0; i < localStorage.length; i++){ const k = localStorage.key(i); if(k && !isNovaKey(k)) out.push(k); } return out; }
   function readProgress(game){ try{ const raw = localStorage.getItem(progressKeyFor(game)); return raw ? JSON.parse(raw) : null; }catch(e){ return null; } }
   function saveGameProgress(game){
@@ -759,10 +781,64 @@
     return new Date(ts).toLocaleDateString();
   }
 
+  /* ---------------- shared card builder ---------------- */
+  const FALLBACK_THUMB = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10'%3E%3C/svg%3E";
+  function createGameCard(game){
+    const card = document.createElement('div');
+    card.className = "game-card" + (isOwnerFavorite(game) ? " owner-pick" : "");
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+
+    const badge = document.createElement('span');
+    badge.className = "owner-badge";
+    badge.textContent = "Owner pick";
+    card.appendChild(badge);
+
+    const star = document.createElement('button');
+    star.type = "button";
+    const fav = isFavorited(game);
+    star.className = "fav-star" + (fav ? " active" : "");
+    star.title = fav ? "Remove from favorites" : "Add to favorites";
+    star.setAttribute('aria-label', star.title);
+    star.innerHTML = '<svg viewBox="0 0 24 24" stroke-linejoin="round"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 17.8 6.8 19.2l1-5.8L3.5 9.2l5.9-.9z"/></svg>';
+    star.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleFavorite(game);
+      const nowFav = isFavorited(game);
+      star.classList.toggle('active', nowFav);
+      star.title = nowFav ? "Remove from favorites" : "Add to favorites";
+      star.setAttribute('aria-label', star.title);
+      renderFavorites();
+    });
+    card.appendChild(star);
+
+    const img = document.createElement('img');
+    img.className = "game-thumb"; img.loading = "lazy"; img.alt = game.title;
+    img.src = game.image || FALLBACK_THUMB;
+    img.addEventListener('error', () => { img.style.visibility = "hidden"; });
+    card.appendChild(img);
+
+    const meta = document.createElement('div'); meta.className = "game-meta";
+    const h3 = document.createElement('h3'); h3.textContent = game.title;
+    const span = document.createElement('span'); span.textContent = game.sourceName;
+    meta.appendChild(h3); meta.appendChild(span);
+    const prog = readProgress(game);
+    if(prog && prog.time){
+      const pill = document.createElement('span'); pill.className = 'game-progress';
+      pill.innerHTML = '<span class="dot"></span> Saved ' + timeAgo(prog.time);
+      meta.appendChild(pill);
+    }
+    card.appendChild(meta);
+
+    card.addEventListener('click', () => openGame(game));
+    return card;
+  }
+
   function applyFilters(){
     const q = gameSearch.value.trim().toLowerCase();
     filteredGames = allGames.filter(g => {
-      if(activeSource !== "all" && g.source !== activeSource) return false;
+      if(activeSource === 'owner'){ if(!isOwnerFavorite(g)) return false; }
+      else if(activeSource !== 'all' && g.source !== activeSource) return false;
       if(q && !g.title.toLowerCase().includes(q)) return false;
       return true;
     });
@@ -773,30 +849,18 @@
   function renderMore(){
     const next = filteredGames.slice(renderedCount, renderedCount + PAGE_SIZE);
     const frag = document.createDocumentFragment();
-    next.forEach(game => {
-      const card = document.createElement('button');
-      card.type = "button"; card.className = "game-card";
-      const img = document.createElement('img');
-      img.className = "game-thumb"; img.loading = "lazy"; img.alt = game.title;
-      img.src = game.image || "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10'%3E%3C/svg%3E";
-      img.addEventListener('error', () => { img.style.visibility = "hidden"; });
-      const meta = document.createElement('div'); meta.className = "game-meta";
-      const h3 = document.createElement('h3'); h3.textContent = game.title;
-      const span = document.createElement('span'); span.textContent = game.sourceName;
-      meta.appendChild(h3); meta.appendChild(span);
-      // progress indicator
-      const prog = readProgress(game);
-      if(prog && prog.time){
-        const pill = document.createElement('span'); pill.className = 'game-progress';
-        pill.innerHTML = '<span class="dot"></span> Saved ' + timeAgo(prog.time);
-        meta.appendChild(pill);
-      }
-      card.appendChild(img); card.appendChild(meta);
-      card.addEventListener('click', () => openGame(game));
-      frag.appendChild(card);
-    });
+    next.forEach(game => frag.appendChild(createGameCard(game)));
     gamesGrid.appendChild(frag);
     renderedCount += next.length;
+  }
+  function renderFavorites(){
+    if(!favoritesGrid) return;
+    const favs = getFavorites();
+    const games = allGames.filter(g => favs.indexOf(favKey(g)) !== -1);
+    favoritesGrid.innerHTML = "";
+    games.forEach(g => favoritesGrid.appendChild(createGameCard(g)));
+    favoritesStatus.style.display = games.length ? "none" : "block";
+    favoritesStatus.textContent = "No favorites yet — click the star on a game to add it here.";
   }
   gamesView.addEventListener('scroll', () => { if(renderedCount >= filteredGames.length) return; if(gamesView.scrollTop + gamesView.clientHeight >= gamesView.scrollHeight - 400) renderMore(); });
   gameSearch.addEventListener('input', applyFilters);
@@ -870,7 +934,7 @@
     if(playerFrame){ playerFrame.remove(); playerFrame = null; }
     currentGameHtml = ""; currentGame = null;
     // refresh the grid so the saved pill / timestamp updates on the card
-    if(allGames.length){ gamesGrid.innerHTML = ""; renderedCount = 0; renderMore(); }
+    if(allGames.length){ gamesGrid.innerHTML = ""; renderedCount = 0; renderMore(); renderFavorites(); }
   }
   document.getElementById('playerClose').addEventListener('click', closeGame);
   document.getElementById('playerFullscreen').addEventListener('click', () => { const target = playerFrame || playerFrameWrap; if(target.requestFullscreen) target.requestFullscreen(); else if(target.webkitRequestFullscreen) target.webkitRequestFullscreen(); });
@@ -892,118 +956,10 @@
     for(let i = 0; i < localStorage.length; i++){ const k = localStorage.key(i); if(k && k.startsWith(PROGRESS_PREFIX)) toRemove.push(k); }
     toRemove.forEach(k => { try{ localStorage.removeItem(k); }catch(e){} });
     getGameKeys().forEach(k => { try{ localStorage.removeItem(k); }catch(e){} });
-    if(allGames.length){ gamesGrid.innerHTML = ""; renderedCount = 0; renderMore(); }
+    if(allGames.length){ gamesGrid.innerHTML = ""; renderedCount = 0; renderMore(); renderFavorites(); }
   });
 
   loadLibrary(false);
-
-  /* ---------------- proxy (cors.eu.org first, then AllOrigins — open source, plain readable code) ---------------- */
-  const proxyFrame = document.getElementById('proxyFrame');
-  const proxyUrlInput = document.getElementById('proxyUrlInput');
-  const proxyLoading = document.getElementById('proxyLoading');
-  let proxyCurrent = "";
-  const proxyStack = [];
-
-  // Public open-source fetch proxies, tried in order until one works.
-  // cors.eu.org is first because it's live right now; AllOrigins and the
-  // Cloudflare demo worker are kept as backups in case it goes down.
-  const PROXY_FETCHERS = [
-    function(u){ return "https://cors.eu.org/" + u; },
-    function(u){ return "https://api.allorigins.win/raw?url=" + encodeURIComponent(u); },
-    function(u){ return "https://test.cors.workers.dev/?" + u; }
-  ];
-  async function proxyFetch(url){
-    let lastError = null;
-    for(let i = 0; i < PROXY_FETCHERS.length; i++){
-      try {
-        const res = await fetch(PROXY_FETCHERS[i](url) + "&t=" + Date.now());
-        if(!res.ok) throw new Error("HTTP " + res.status);
-        const text = await res.text();
-        if(!text) throw new Error("empty response");
-        return text;
-      } catch(e){ lastError = e; }
-    }
-    throw lastError || new Error("no proxy responded");
-  }
-
-  function normalizeProxyUrl(input){
-    let u = (input || "").trim();
-    if(!u) return "";
-    if(!/^https?:\/\//i.test(u)){
-      // looks like a domain -> go straight to it, otherwise web search
-      if(/^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}(\/|$|\?|#)/i.test(u)) u = "https://" + u;
-      else u = "https://www.bing.com/search?q=" + encodeURIComponent(u);
-    }
-    return u;
-  }
-
-  // Rewrites a page so it renders inside the proxy frame, and every link/form
-  // comes back through the proxy instead of leaving the site.
-  function proxyRewrite(html, url){
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    doc.querySelectorAll("base").forEach(b => b.remove());
-    const base = doc.createElement("base");
-    base.href = url;
-    doc.head.appendChild(base);
-    const navScript = doc.createElement("script");
-    navScript.textContent =
-      "(function(){" +
-      "  function send(u){" +
-      "    if(parent && parent.proxyNavigate){ try { parent.proxyNavigate(u); } catch(e){ location.href = u; } }" +
-      "    else { location.href = u; }" +
-      "  }" +
-      "  document.addEventListener('click', function(e){" +
-      "    var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;" +
-      "    if(!a) return;" +
-      "    var href = a.getAttribute('href') || '';" +
-      "    if(!href || href.charAt(0) === '#' || /^javascript:/i.test(href) || a.target === '_blank') return;" +
-      "    e.preventDefault();" +
-      "    send(new URL(href, document.baseURI).href);" +
-      "  }, true);" +
-      "  document.addEventListener('submit', function(e){" +
-      "    var form = e.target;" +
-      "    if((form.method || 'get').toLowerCase() !== 'get') return;" +
-      "    e.preventDefault();" +
-      "    var action = new URL(form.getAttribute('action') || document.baseURI, document.baseURI).href;" +
-      "    var params = new URLSearchParams(new FormData(form)).toString();" +
-      "    send(params ? action + (action.indexOf('?') > -1 ? '&' : '?') + params : action);" +
-      "  }, true);" +
-      "})();";
-    doc.head.appendChild(navScript);
-    return "<!DOCTYPE html>" + doc.documentElement.outerHTML;
-  }
-
-  function proxyNavigate(url){
-    if(proxyCurrent) proxyStack.push(proxyCurrent);
-    proxyLoad(url);
-  }
-  async function proxyLoad(rawUrl){
-    const url = normalizeProxyUrl(rawUrl);
-    if(!url) return;
-    proxyUrlInput.value = url;
-    proxyCurrent = url;
-    proxyLoading.style.display = "flex";
-    proxyLoading.textContent = "Loading " + url + " through the proxy...";
-    try {
-      const html = await proxyFetch(url);
-      if(proxyCurrent !== url) return; // user already moved on
-      proxyFrame.srcdoc = proxyRewrite(html, url);
-    } catch(err){
-      proxyFrame.srcdoc = "<!DOCTYPE html><html><head><meta charset='utf-8'></head><body style='margin:0;font-family:sans-serif;background:#0a0d16;color:#eceefb;display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;padding:24px'><div><h2>Couldn't load that through the proxy</h2><p style='color:#7d84a3'>" + String(err.message || err) + "</p><p style='color:#7d84a3'>Try again, or try a different site.</p></div></body></html>";
-      proxyLoading.style.display = "none";
-    }
-  }
-  proxyFrame.addEventListener('load', () => { proxyLoading.style.display = "none"; });
-
-  document.getElementById('proxyGo').addEventListener('click', () => { if(proxyCurrent) proxyStack.push(proxyCurrent); proxyLoad(proxyUrlInput.value); });
-  proxyUrlInput.addEventListener('keydown', (e) => { if(e.key === 'Enter'){ e.preventDefault(); if(proxyCurrent) proxyStack.push(proxyCurrent); proxyLoad(proxyUrlInput.value); } });
-  document.getElementById('proxyBack').addEventListener('click', () => { const prev = proxyStack.pop(); if(prev) proxyLoad(prev); });
-  document.getElementById('proxyNewTab').addEventListener('click', () => {
-    if(!proxyFrame.srcdoc){ alert('Load a page first.'); return; }
-    const win = openCloakedWindow("<!DOCTYPE html><html><head><title></title></head><body style='margin:0;background:#000'><iframe id='p' style='position:fixed;inset:0;width:100%;height:100%;border:0;background:#fff'></iframe></body></html>", proxyCurrent || 'New Tab');
-    if(!win){ alert('Your browser blocked the new tab. Allow pop-ups for this site and try again.'); return; }
-    try { win.document.getElementById('p').srcdoc = proxyFrame.srcdoc; } catch(e){}
-  });
 
   /* ---------------- starfield ---------------- */
   const canvas = document.getElementById('starfield');
